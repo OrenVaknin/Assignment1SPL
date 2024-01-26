@@ -1,10 +1,10 @@
 #include "Volunteer.h"
 
-LimitedCollectorVolunteer::LimitedCollectorVolunteer(int id, string name, int coolDown, int maxOrders)
+LimitedCollectorVolunteer::LimitedCollectorVolunteer(int id, const string& name, int coolDown, int maxOrders)
     : CollectorVolunteer(id, name, coolDown), maxOrders(maxOrders), ordersLeft(maxOrders) {
 }
 
-LimitedCollectorVolunteer *LimitedCollectorVolunteer::clone() const {
+LimitedCollectorVolunteer* LimitedCollectorVolunteer::clone() const {
     // Implement the clone function
 }
 
@@ -12,11 +12,11 @@ bool LimitedCollectorVolunteer::hasOrdersLeft() const {
     // Implement the hasOrdersLeft function
 }
 
-bool LimitedCollectorVolunteer::canTakeOrder(const Order &order) const {
+bool LimitedCollectorVolunteer::canTakeOrder(const Order& order) const {
     // Implement the canTakeOrder function
 }
 
-void LimitedCollectorVolunteer::acceptOrder(const Order &order) {
+void LimitedCollectorVolunteer::acceptOrder(const Order& order) {
     // Implement the acceptOrder function
 }
 

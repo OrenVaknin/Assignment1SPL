@@ -1,34 +1,70 @@
-#include <string>
-#include <vector>
-using std::string;
-using std::vector;
+#include "Customer.h"
 
-int Customer::getId() const {
-    return ID;
+Customer::Customer(int id, const string& name, int locationDistance, int maxOrders) :
+	id(id), name(name), locationDistance(locationDistance), maxOrders(maxOrders), ordersId() {}
+
+int Customer::getId() const 
+{
+	return id;
 };
-string Customer::&getName() const{
-    return &name;
+
+const string& Customer::getName() const
+{
+	return name;
+}
+
+int Customer::getCustomerDistance() const
+{
+	return locationDistance;
 };
-int Customer::getCustomerDistance() const{
-    return locationDistance;
+
+int Customer::getMaxOrders() const
+{
+	return maxOrders;
 };
-int Customer::getMaxOrders() const {
-    return maxOrders;
+
+int Customer::getNumOrders() const
+{
+	return ordersId.size();
 };
-int Customer::getNumOrders() const{
-    return totalOrders;
+
+bool Customer::canMakeOrder() const
+{
+	return getMaxOrders() > getNumOrders();
+}
+
+const vector<int>& Customer::getOrders() const
+{
+	return ordersId;
+}
+
+
+
+int Customer::addOrder(int orderID)
+{
+	if (canMakeOrder)
+	{
+		ordersId.push_back(orderID);
+		return orderID;
+	}
+	return -1;
 };
-bool Customer::canMakeOrder() const{
-    return (getMaxOrders > getNumOrders);
-}:
-vector<int> Customer::getOrders(){
-    return //??
-};
-int Customer::addOrder(int orderID){
-    if (canMakeOrder){
-        totalOrders++;
-        return orderID;
-    };
-    return -1
-};
-virtual Customer // save for laterino
+//virtual Customer // save for laterino
+
+SoldierCustomer::SoldierCustomer(int id, const string& name, int locationDistance, int maxOrders)
+{
+}
+
+SoldierCustomer* SoldierCustomer::clone() const
+{
+	return nullptr;
+}
+
+CivilianCustomer::CivilianCustomer(int id, const string& name, int locationDistance, int maxOrders)
+{
+}
+
+CivilianCustomer* CivilianCustomer::clone() const
+{
+	return nullptr;
+}
