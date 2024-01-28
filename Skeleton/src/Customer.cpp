@@ -49,11 +49,10 @@ int Customer::addOrder(int orderID)
 	}
 	return -1;
 };
-//virtual Customer // save for laterino
 
-SoldierCustomer::SoldierCustomer(int id, const string& name, int locationDistance, int maxOrders)
-{
-}
+
+SoldierCustomer::SoldierCustomer(int id, const string& name, int locationDistance, int maxOrders) :
+	Customer(id, name, locationDistance, maxOrders) {}
 
 SoldierCustomer* SoldierCustomer::clone() const
 {
@@ -61,8 +60,7 @@ SoldierCustomer* SoldierCustomer::clone() const
 }
 
 CivilianCustomer::CivilianCustomer(int id, const string& name, int locationDistance, int maxOrders)
-{
-}
+	: Customer(id, name, locationDistance, maxOrders) {}
 
 CivilianCustomer* CivilianCustomer::clone() const
 {

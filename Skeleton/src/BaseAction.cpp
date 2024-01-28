@@ -9,15 +9,18 @@ ActionStatus BaseAction::getStatus() const
 
 void BaseAction::complete()
 {
+	status = ActionStatus::COMPLETED;
 }
 
 void BaseAction::error(string errorMsg)
 {
+	status = ActionStatus::ERROR;
+	this->errorMsg = errorMsg;
 }
 
 string BaseAction::getErrorMsg() const
 {
-	return string();
+	return errorMsg;
 }
 //-----------------------------------------------------------------
 
@@ -26,6 +29,7 @@ SimulateStep::SimulateStep(int numOfSteps) : numOfSteps(numOfSteps) {}
 
 void SimulateStep::act(WareHouse& wareHouse)
 {
+	
 }
 
 std::string SimulateStep::toString() const

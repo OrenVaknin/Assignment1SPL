@@ -50,14 +50,14 @@ WareHouse::WareHouse(const string& configFilePath) {
 			if (role == "collector" || role == "limited_collector")
 			{
 				iss >> cooldown >> maxOrders;
-				
+
 				if (iss.fail()) // no maxOrders has been given
 					volunteers.push_back(new CollectorVolunteer(0, name, cooldown));
 				else
 					volunteers.push_back(new LimitedCollectorVolunteer(0, name, cooldown, maxOrders));
 			}
 
-			else if (role == "driver" || role == "limited_driver") 
+			else if (role == "driver" || role == "limited_driver")
 			{
 				iss >> maxDistance, distancePerStep, maxOrders;
 
@@ -82,7 +82,7 @@ const vector<BaseAction*>& WareHouse::getActions() const
 	return actionsLog;
 }
 
-void WareHouse::addOrder(Order* order) 
+void WareHouse::addOrder(Order* order)
 {
 	//this->ID = order.getId;
 	//pendingOrders.push_back(order);
@@ -93,7 +93,7 @@ void WareHouse::addAction(BaseAction* action)
 	//actionsLog.push_back(action);
 }
 
-Customer& WareHouse::getCustomer(int customerId) const 
+Customer& WareHouse::getCustomer(int customerId) const
 {
 	//x= look for the volunteer with the id in the array
 	//return *Customers[x];
@@ -115,3 +115,85 @@ void WareHouse::open() {
 	isOpen = true;
 	cout << "Warehouse is open!" << endl;
 }
+
+void WareHouse::preformStep()
+{
+	bool freeCollector = true, freeDriver = true;
+	// part 1
+	for (Order* o : pendingOrders)
+		switch (o->getStatus())
+		{
+		case OrderStatus::PENDING:
+			if (freeCollector)
+			{
+				Volunteer* v = findFreeVolunteer(*o);
+				if (v != nullptr)
+				{
+					v->acceptOrder(*o);
+					o->setStatus(OrderStatus::COLLECTING);
+					switchOrdersVector(o, pendingOrders, inProcessOrders);
+				}
+				else
+					freeCollector = false;
+			}
+			break;
+
+		case OrderStatus::COLLECTING:
+			if (freeDriver)
+			{
+				Volunteer* v = findFreeVolunteer(*o);
+				if (v != nullptr)
+				{
+					v->acceptOrder(*o);
+					o->setStatus(OrderStatus::DELIVERING);
+					switchOrdersVector(o, pendingOrders, inProcessOrders);
+				}
+				else
+					freeDriver = false;
+			}
+			break;
+
+		default:
+			// COMPLETED or DELIVERING
+			// ERROR
+			// TODO
+			break;
+		}
+
+	// part 2 - 4
+	for (Volunteer* v : volunteers)
+	{
+		v->step(); // 2
+		if (v->getActiveOrderId() == NO_ORDER)
+		{
+			Order o = getOrder(v->getCompletedOrderId());
+			if (o.getStatus() == OrderStatus::COLLECTING)
+				switchOrdersVector(&o, inProcessOrders, pendingOrders);
+			else if (o.getStatus() == OrderStatus::DELIVERING)
+			{
+				switchOrdersVector(&o, inProcessOrders, completedOrders);
+			}
+				
+		}
+
+	}
+}
+
+Volunteer* WareHouse::findFreeVolunteer(const Order& order)
+{
+	for (Volunteer* v : volunteers)
+		if (v->canTakeOrder(order))
+			return v;
+	return nullptr;
+}
+
+void WareHouse::switchOrdersVector(Order* p, std::vector<Order*>& source, std::vector<Order*>& destination)
+{
+	auto it = std::find(source.begin(), source.end(), p);
+	if (it != source.end())
+	{
+		source.erase(it);
+		destination.push_back(p);
+	}
+}
+

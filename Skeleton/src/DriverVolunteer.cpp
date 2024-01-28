@@ -25,7 +25,7 @@ bool DriverVolunteer::decreaseDistanceLeft() {
 }
 
 bool DriverVolunteer::hasOrdersLeft() const {
-    // Implement the hasOrdersLeft function
+    return true;
 }
 
 bool DriverVolunteer::canTakeOrder(const Order& order) const {
