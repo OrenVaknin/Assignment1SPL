@@ -31,20 +31,22 @@ public:
     const vector<BaseAction*>& getActions() const;
     void close();
     void open();
+    void preformStep();
 
 
 private:
     bool isOpen;
     vector<BaseAction*> actionsLog;
     vector<Volunteer*> volunteers;
-    vector<Order*> pendingOrders;
+    vector<Order*> pendingOrders;  
     vector<Order*> inProcessOrders;
     vector<Order*> completedOrders;
     vector<Customer*> customers;
     int customerCounter; //For assigning unique customer IDs
     int volunteerCounter; //For assigning unique volunteer IDs
     int orderCounter;
-
+    Volunteer* findFreeVolunteer(const Order& order);
+    void switchOrdersVector(Order* p, std::vector<Order*>& source, std::vector<Order*>& destination);    
 };
 
 
