@@ -1,33 +1,37 @@
 #include "Volunteer.h"
 
 LimitedDriverVolunteer::LimitedDriverVolunteer(int id, const string& name, int maxDistance, int distancePerStep, int maxOrders)
-    : DriverVolunteer(id, name, maxDistance, distancePerStep), maxOrders(maxOrders), ordersLeft(maxOrders) {
+	: DriverVolunteer(id, name, maxDistance, distancePerStep), maxOrders(maxOrders), ordersLeft(maxOrders) {
 }
 
 LimitedDriverVolunteer* LimitedDriverVolunteer::clone() const {
-    // Implement the clone function
+	return new LimitedDriverVolunteer(*this);
 }
 
 int LimitedDriverVolunteer::getMaxOrders() const {
-    return maxOrders;
+	return maxOrders;
 }
 
 int LimitedDriverVolunteer::getNumOrdersLeft() const {
-    return ordersLeft;
+	return ordersLeft;
 }
 
 bool LimitedDriverVolunteer::hasOrdersLeft() const {
-    // Implement the hasOrdersLeft function
+	return ordersLeft > 0;
 }
 
 bool LimitedDriverVolunteer::canTakeOrder(const Order& order) const {
-    // Implement the canTakeOrder function
+	return hasOrdersLeft() && DriverVolunteer::canTakeOrder(order);
 }
 
 void LimitedDriverVolunteer::acceptOrder(const Order& order) {
-    // Implement the acceptOrder function
+	DriverVolunteer::acceptOrder(order);
+	ordersLeft--;
 }
 
 string LimitedDriverVolunteer::toString() const {
-    // Implement the toString function
+	string s = Volunteer::toString();
+	s += "Distance Left: " + isBusy() ? to_string(getDistanceLeft()) + "\n" : "None\n";
+	s += "Orders Left: " + to_string(ordersLeft) + "\n";
+	return s;
 }

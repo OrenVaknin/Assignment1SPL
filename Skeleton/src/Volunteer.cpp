@@ -28,3 +28,12 @@ bool Volunteer::isBusy() const
 {
     return activeOrderId != NO_ORDER;
 }
+
+string Volunteer::toString() const
+{
+	string s;
+	s = "VolunteerID: " + to_string(getId()) + "\n";
+	s += "Is Busy: " + isBusy() ? "True\n" : "False\n";
+	s += "OrderID: " + (getActiveOrderId() != NO_ORDER ? to_string(getActiveOrderId()) : "None") + "\n";
+	return s;
+}

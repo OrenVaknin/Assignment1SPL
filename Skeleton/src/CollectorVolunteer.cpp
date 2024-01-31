@@ -5,11 +5,15 @@ CollectorVolunteer::CollectorVolunteer(int id, const string& name, int coolDown)
 
 
 CollectorVolunteer* CollectorVolunteer::clone() const {
-	// Implement the clone function
+		return new CollectorVolunteer(*this);
 }
 
 void CollectorVolunteer::step() {
-	decreaseCoolDown();
+	if(decreaseCoolDown())
+	{
+		completedOrderId = activeOrderId;
+		activeOrderId = NO_ORDER;
+	}
 }
 
 int CollectorVolunteer::getCoolDown() const {
@@ -20,14 +24,10 @@ int CollectorVolunteer::getTimeLeft() const {
 	return timeLeft;
 }
 
-bool CollectorVolunteer::decreaseCoolDown() {
-
+bool CollectorVolunteer::decreaseCoolDown()
+{
 	timeLeft--;
-	if (timeLeft == 0)
-	{
-		completedOrderId = activeOrderId;
-		activeOrderId = NO_ORDER;
-	}
+	return timeLeft == 0;
 }
 
 bool CollectorVolunteer::hasOrdersLeft() const {
@@ -40,11 +40,12 @@ bool CollectorVolunteer::canTakeOrder(const Order& order) const {
 
 void CollectorVolunteer::acceptOrder(const Order& order) {
 	timeLeft = coolDown;
-	activeOrderId = order.getDriverId();
 	activeOrderId = order.getId();
-	
 }
 
 string CollectorVolunteer::toString() const {
-	// Implement the toString function
+	string s = Volunteer::toString();
+	s += "Time Left: " + isBusy()? to_string(getTimeLeft()) + "\n" : "None\n";
+	s += "Orders Left: No Limit\n";
+	return s; 
 }
