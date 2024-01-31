@@ -7,8 +7,7 @@
 #include "Order.h"
 #include "Customer.h"
 #include "Volunteer.h"
-
-class BaseAction;
+#include "BaseAction.h"
 
 using namespace std;
 
@@ -32,7 +31,15 @@ public:
     void close();
     void open();
     void preformStep();
-
+    int nextCustomerId();
+    int nextVolunteerId();
+    int nextOrderId();
+    int getCustomerCounter();
+    int getOrderCounter();
+    int getVolunteerCounter();
+    void addCustomer(Customer* customer);
+    const vector<Order*>& myOrders(int customerId);
+    
 
 private:
     bool isOpen;
@@ -46,7 +53,10 @@ private:
     int volunteerCounter; //For assigning unique volunteer IDs
     int orderCounter;
     Volunteer* findFreeVolunteer(const Order& order);
-    void switchOrdersVector(Order* p, std::vector<Order*>& source, std::vector<Order*>& destination);    
+
+    void switchOrdersVector(Order* p, std::vector<Order*>& source, std::vector<Order*>& destination);
+    void clearMemory();
+    string getInput();
 };
 
 

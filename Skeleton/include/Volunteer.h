@@ -4,6 +4,7 @@
 #include "Order.h"
 using std::string;
 using std::vector;
+using namespace std;
 
 #define NO_ORDER -1
 

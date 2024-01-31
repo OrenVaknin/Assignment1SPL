@@ -32,7 +32,7 @@ private:
 	ActionStatus status;
 };
 
-class SimulateStep : public BaseAction {
+class SimulateStep : public BaseAction { 
 
 public:
 	SimulateStep(int numOfSteps);
@@ -44,7 +44,7 @@ private:
 	const int numOfSteps;
 };
 
-class AddOrder : public BaseAction {
+class AddOrder : public BaseAction { 
 public:
 	AddOrder(int id);
 	void act(WareHouse& wareHouse) override;
@@ -55,7 +55,7 @@ private:
 };
 
 
-class AddCustomer : public BaseAction {
+class AddCustomer : public BaseAction { 
 public:
 	AddCustomer(const string& customerName, const string& customerType, int distance, int maxOrders);
 	CustomerType SetType(const string& customerType);
@@ -71,7 +71,7 @@ private:
 
 
 
-class PrintOrderStatus : public BaseAction {
+class PrintOrderStatus : public BaseAction { 
 public:
 	PrintOrderStatus(int id);
 	void act(WareHouse& wareHouse) override;
@@ -95,7 +95,7 @@ private:
 class PrintVolunteerStatus : public BaseAction {
 public:
 	PrintVolunteerStatus(int id);
-	void act(WareHouse& wareHouse) override;
+	void act(WareHouse& wareHouse) override; 
 	PrintVolunteerStatus* clone() const override;
 	string toString() const override;
 private:

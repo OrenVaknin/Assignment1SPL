@@ -28,7 +28,8 @@ public:
     int getDriverId() const;
     OrderStatus getStatus() const;
     const string toString() const;
-
+    int getDistance() const;
+    const string toStringByStats() const;
 private:
     const int id;
     const int customerId;
