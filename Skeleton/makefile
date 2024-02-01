@@ -13,9 +13,14 @@ BIN_DIR = bin
 SRC_FILES = $(SRC_DIR)/main.cpp \
             $(SRC_DIR)/Customer.cpp \
             $(SRC_DIR)/WareHouse.cpp \
-			$(SRC_DIR)/Action.cpp \
+			$(SRC_DIR)/BaseAction.cpp \
             $(SRC_DIR)/Order.cpp \
-			$(SRC_DIR)/Volunteer.cpp
+			$(SRC_DIR)/Volunteer.cpp \
+			$(SRC_DIR)/CollectorVolunteer.cpp \
+			$(SRC_DIR)/DriverVolunteer.cpp \
+			$(SRC_DIR)/LimitedCollectorVolunteer.cpp \
+			$(SRC_DIR)/LimitedDriverVolunteer.cpp \
+			
 HEADER_FILES = $(wildcard $(INCLUDE_DIR)/*.h)
 
 # Object files
