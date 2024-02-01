@@ -2,7 +2,7 @@
 
 #define NO_ORDER -1
 
-Volunteer::Volunteer(int id, const std::string& name): 
+Volunteer::Volunteer(int id, const string& name): 
     id(id), name(name), completedOrderId(NO_ORDER), activeOrderId(NO_ORDER) {}
 
 int Volunteer::getId() const {

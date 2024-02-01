@@ -66,3 +66,9 @@ string DriverVolunteer::toString() const
 	s += "Orders Left: No Limit\n";
 	return s;
 }
+
+Volunteer& DriverVolunteer::getInvalidVolunteer()
+{
+	static DriverVolunteer invalidVolunteer(-1, "", 0, 0);
+	return invalidVolunteer;
+}

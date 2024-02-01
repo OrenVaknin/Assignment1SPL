@@ -4,6 +4,11 @@ Order::Order(int id, int customerId, int distance) :
 	id(id), customerId(customerId), distance(distance), status(OrderStatus::PENDING),
 	collectorId(NO_VOLUNTEER), driverId(NO_VOLUNTEER) {}
 
+Order* Order::clone()
+{
+	return new Order(*this);
+}
+
 int Order::getId() const {
 	return id;
 };
@@ -30,7 +35,7 @@ OrderStatus Order::getStatus() const {
 }
 const string Order::toString() const
 {
-	std::string s = "OrderId: " + std::to_string(id) + "\n";
+	string s = "OrderId: " + to_string(id) + "\n";
 	s += "OrderStatus: ";
 	switch (status) {
 	case OrderStatus::PENDING:
@@ -46,11 +51,11 @@ const string Order::toString() const
 		s += "Completed";
 		break;
 	}
-	s += "\nCustomerId: " + std::to_string(customerId) + "\n";
+	s += "\nCustomerId: " + to_string(customerId) + "\n";
 
-	s += "Collector: " + (status == OrderStatus::PENDING) ? "None" : std::to_string(collectorId);
+	s += "Collector: " + (status == OrderStatus::PENDING) ? "None" : to_string(collectorId);
 
-	s += "\nDriver: " + (status == OrderStatus::DELIVERING || status == OrderStatus::COMPLETED) ? std::to_string(driverId) : "None";
+	s += "\nDriver: " + (status == OrderStatus::DELIVERING || status == OrderStatus::COMPLETED) ? to_string(driverId) : "None";
 
 	return s;
 }
@@ -78,4 +83,9 @@ const string Order::toStringByStats() const
 	}
 
 	return id + " " + customerId + s;
+}
+Order& Order::getInvalidOrder()
+{
+	static Order invalidOrder(-1, -1 ,0);
+	return invalidOrder;
 }

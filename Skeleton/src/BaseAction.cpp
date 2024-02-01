@@ -1,4 +1,5 @@
 #include "BaseAction.h"
+extern WareHouse* backup;
 
 BaseAction::BaseAction() {}
 
@@ -41,7 +42,7 @@ void SimulateStep::act(WareHouse& wareHouse)
 		wareHouse.preformStep();
 }
 
-std::string SimulateStep::toString() const
+string SimulateStep::toString() const
 {
 	// step 3
 	return "Step " + to_string(numOfSteps) + " " + BaseAction::toString();
@@ -63,7 +64,7 @@ void AddOrder::act(WareHouse& wareHouse)
 	{
 		Customer& cus = wareHouse.getCustomer(customerId);
 
-		if (cus.canMakeOrder())
+		if (cus.getId()!=-1 && cus.canMakeOrder())
 		{
 			int id = wareHouse.nextOrderId();
 			int dis = cus.getCustomerDistance();
@@ -102,6 +103,7 @@ CustomerType AddCustomer::SetType(const string& customerType)
 
 void AddCustomer::act(WareHouse& wareHouse)
 {
+	//wareHouse.addCustomer(customerType, customerName, distance, maxOrders);
 	Customer* c;
 	if (customerType == CustomerType::Soldier)
 		c = new SoldierCustomer(wareHouse.nextCustomerId(), customerName, distance, maxOrders);
@@ -157,13 +159,11 @@ void PrintCustomerStatus::act(WareHouse& wareHouse)
 	if (customerId<0 || customerId>wareHouse.getCustomerCounter())
 		error("Customer doesn't exist");
 
-	cout << "CustomerID: " + std::to_string(customerId) + "\n";
+	cout << "CustomerID: " + to_string(customerId) + "\n";
 
 	for (Order* o : wareHouse.myOrders(customerId))
 		cout << "\n" + o->toString();
-
-	wareHouse.getCustomer(customerId).getMaxOrders();
-	cout << "numOrdersLeft: " + std::to_string(wareHouse.getCustomer(customerId).getMaxOrders() - wareHouse.getCustomer(customerId).getNumOrders()) + "\n";
+	cout << "numOrdersLeft: " + to_string(wareHouse.getCustomer(customerId).getMaxOrders() - wareHouse.getCustomer(customerId).getNumOrders()) + "\n";
 }
 
 PrintCustomerStatus* PrintCustomerStatus::clone() const
@@ -245,13 +245,13 @@ string Close::toString() const
 
 
 
-BackupWareHouse::BackupWareHouse()
-{
-
-}
+BackupWareHouse::BackupWareHouse() {}
 
 void BackupWareHouse::act(WareHouse& wareHouse)
 {
+	if (backup != nullptr)
+		backup->close();
+	backup = wareHouse.clone();
 }
 
 BackupWareHouse* BackupWareHouse::clone() const
@@ -267,12 +267,14 @@ string BackupWareHouse::toString() const
 
 
 
-RestoreWareHouse::RestoreWareHouse()
-{
-}
+RestoreWareHouse::RestoreWareHouse() {}
 
 void RestoreWareHouse::act(WareHouse& wareHouse)
 {
+	if (backup != nullptr) {
+		backup->clone();
+		//wareHouse.reconstruction();
+	}
 }
 
 RestoreWareHouse* RestoreWareHouse::clone() const
@@ -282,5 +284,8 @@ RestoreWareHouse* RestoreWareHouse::clone() const
 
 string RestoreWareHouse::toString() const
 {
+	if (backup == nullptr) {
+		return "No backup available";
+	}
 	return "Restore " + BaseAction::toString();
 }

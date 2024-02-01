@@ -76,12 +76,42 @@ inProcessOrders(), completedOrders(), customers(), customerCounter(0), volunteer
 	configFile.close();
 }
 
+WareHouse::WareHouse(const WareHouse& other)
+{
+	isOpen = other.isOpen;
+	customerCounter = other.customerCounter;
+	volunteerCounter = other.volunteerCounter;
+	orderCounter = other.orderCounter;
+
+	for (BaseAction* a : other.actionsLog)
+		addAction(a->clone());
+
+	for (Volunteer* v : other.volunteers)
+		this->volunteers.push_back(v->clone());
+
+	for (Order* o : other.pendingOrders)
+		this->pendingOrders.push_back(o->clone());
+	
+	for (Order* o : other.inProcessOrders)
+		this->inProcessOrders.push_back(o->clone());
+
+	for (Order* o : other.completedOrders)
+		this->completedOrders.push_back(o->clone());
+
+	for (Customer* c : other.customers)
+		this->addCustomer(c->clone());
+}
+
+WareHouse* WareHouse::clone()
+{
+	return new WareHouse(*this);
+}
+
 void WareHouse::start() {
 	open();
 	while (isOpen)
-	{
-
-	}
+		handleInputAction();
+	
 }
 const vector<BaseAction*>& WareHouse::getActions() const
 {
@@ -103,8 +133,9 @@ Customer& WareHouse::getCustomer(int customerId) const
 	for (Customer* c : customers)
 		if (c->getId() == customerId)
 			return *c;
+
 	//error
-	return;
+	return SoldierCustomer::getInvalidCustomer();
 }
 
 Volunteer& WareHouse::getVolunteer(int volunteerId) const
@@ -114,7 +145,7 @@ Volunteer& WareHouse::getVolunteer(int volunteerId) const
 			return *v;
 
 	//error
-	return;
+	return DriverVolunteer::getInvalidVolunteer();
 }
 Order& WareHouse::getOrder(int orderId) const {
 
@@ -147,12 +178,13 @@ Order& WareHouse::getOrder(int orderId) const {
 
 	else
 		// error
-		return;
+		return Order::getInvalidOrder();;
 }
 
 void WareHouse::close() {
 	isOpen = false;
 	clearMemory();
+	delete this;
 }
 void WareHouse::open() {
 	isOpen = true;
@@ -223,7 +255,7 @@ void WareHouse::preformStep()
 
 		if (!v->hasOrdersLeft()) // 4
 		{
-			auto it = std::find(volunteers.begin(), volunteers.end(), v);
+			auto it = find(volunteers.begin(), volunteers.end(), v);
 			volunteers.erase(it);
 			delete v;
 		}
@@ -260,10 +292,22 @@ int WareHouse::getVolunteerCounter()
 	return volunteerCounter;
 }
 
+void WareHouse::addVolunteer(Volunteer* volunteer)
+{
+	volunteers.push_back(volunteer);
+}
+
 void WareHouse::addCustomer(Customer* customer)
 {
 	customers.push_back(customer);
 }
+
+//void WareHouse::addCustomer(const CustomerType type, const string& name, int distance, int maxOrders)
+//{
+//	if (type == CustomerType::Soldier)
+//		customers.push_back(new SoldierCustomer(nextCustomerId(), name, distance, maxOrders));
+//	customers.push_back(new CivilianCustomer(nextCustomerId(), name, distance, maxOrders));
+//}
 
 const vector<Order*>& WareHouse::myOrders(int customerId)
 {
@@ -291,9 +335,9 @@ Volunteer* WareHouse::findFreeVolunteer(const Order& order)
 	return nullptr;
 }
 
-void WareHouse::switchOrdersVector(Order* p, std::vector<Order*>& source, std::vector<Order*>& destination)
+void WareHouse::switchOrdersVector(Order* p, vector<Order*>& source, vector<Order*>& destination)
 {
-	auto it = std::find(source.begin(), source.end(), p);
+	auto it = find(source.begin(), source.end(), p);
 	if (it != source.end())
 	{
 		source.erase(it);
@@ -322,39 +366,60 @@ void WareHouse::clearMemory()
 		delete customer;
 }
 
-string WareHouse::getInput()
+void WareHouse::handleInputAction()
 {
-	string userInput;
-	getline(cin, userInput);
+	string line;
+	getline(cin, line);
 	
 	string actionType;
-	istringstream iss(userInput);
+	istringstream iss(line);
 	iss >> actionType;
 
 	BaseAction* action;
-	addAction(action);
+	int userInputI1, userInputI2;
 
-	if (actionType == "simulateStep") {
-		int numOfSteps;
-		if (iss >> numOfSteps)
-			action = new SimulateStep(numOfSteps);
-	}
+	if (actionType == "simulateStep")
+		if (iss >> userInputI1) // numOfSteps
+			action = new SimulateStep(userInputI1);
 
-	else if (actionType == "order") {
-		int customerId;
-		if (iss >> customerId)
-			action = new AddOrder(customerId);
-	}
+	else if (actionType == "order")
+		if (iss >> userInputI1) // customerId
+			action = new AddOrder(userInputI1);
 
 	else if (actionType == "customer") {
-		std::string customerName, customerType;
-		int distance, maxOrders;
-		if (iss >> customerName >> customerType >> distance >> maxOrders && (customerType == "civilian" || customerType == "soldier"))
-			action = new AddCustomer(customerName, customerType, distance, maxOrders);
+		string userInputS1, userInputS2;
+
+		// customerName, customerType, distance, maxOrders
+		if (iss >> userInputS1 >> userInputS2 >> userInputI1 >> userInputI2 && (userInputS2 == "civilian" || userInputS2 == "soldier") && userInputI1>=0, userInputI2>=0)
+			action = new AddCustomer(userInputS1, userInputS2, userInputI1, userInputI2);
 	}
 
+	else if (actionType == "orderStatus")
+		if (iss >> userInputI1) // orderId
+			action = new PrintOrderStatus(userInputI1);
 
+	else if (actionType == "customerStatus")
+		if (iss >> userInputI1) // customerID
+			action = new PrintCustomerStatus(userInputI1);
 
-	return string();
+	else if (actionType == "volunteerStatus")
+		if (iss >> userInputI1) // volunteerID
+			action = new PrintVolunteerStatus(userInputI1);
+
+	else if (actionType == "log") 
+		action = new PrintActionsLog();
+
+	else if (actionType == "close")
+		action = new Close();
+
+	else if (actionType == "backup")
+		action = new BackupWareHouse();
+
+	else if (actionType == "Restore")
+		action = new RestoreWareHouse();
+
+	addAction(action);
+	action->act(*this);
 }
+
 

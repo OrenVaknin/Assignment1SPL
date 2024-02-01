@@ -46,8 +46,7 @@ int Customer::addOrder(int orderID)
 		return orderID;
 	}
 	return -1;
-};
-
+}
 
 SoldierCustomer::SoldierCustomer(int id, const string& name, int locationDistance, int maxOrders) :
 	Customer(id, name, locationDistance, maxOrders) {}
@@ -56,6 +55,14 @@ SoldierCustomer* SoldierCustomer::clone() const
 {
 	return new SoldierCustomer(*this);
 }
+
+Customer& SoldierCustomer::getInvalidCustomer()
+{
+	static SoldierCustomer invalidCustomer(-1, "", 0 ,0);
+	return invalidCustomer;
+}
+
+
 
 CivilianCustomer::CivilianCustomer(int id, const string& name, int locationDistance, int maxOrders)
 	: Customer(id, name, locationDistance, maxOrders) {}
