@@ -2,8 +2,9 @@
 #include <string>
 #include <vector>
 #include "WareHouse.h"
-using std::string;
-using std::vector;
+
+using namespace std;
+
 
 enum class ActionStatus {
 	COMPLETED, ERROR
@@ -37,7 +38,7 @@ class SimulateStep : public BaseAction {
 public:
 	SimulateStep(int numOfSteps);
 	void act(WareHouse& wareHouse) override;
-	std::string toString() const override;
+	string toString() const override;
 	SimulateStep* clone() const override;
 
 private:

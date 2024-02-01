@@ -2,8 +2,7 @@
 #include <string>
 #include <vector>
 #include "Order.h"
-using std::string;
-using std::vector;
+
 using namespace std;
 
 #define NO_ORDER -1
@@ -88,6 +87,8 @@ public:
     void acceptOrder(const Order& order) override; // Assign distanceLeft to order's distance
     void step() override; // Decrease distanceLeft by distancePerStep
     string toString() const override;
+
+    static Volunteer& getInvalidVolunteer();
 
 private:
     const int maxDistance; // The maximum distance of ANY order the volunteer can take

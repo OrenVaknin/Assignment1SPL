@@ -21,6 +21,8 @@ class WareHouse {
 public:
     
     WareHouse(const string &configFilePath);
+    WareHouse(const WareHouse& other);
+    WareHouse* clone();
     void start();
     void addOrder(Order* order);
     void addAction(BaseAction* action);
@@ -37,7 +39,9 @@ public:
     int getCustomerCounter();
     int getOrderCounter();
     int getVolunteerCounter();
+    void addVolunteer(Volunteer* volunteer);
     void addCustomer(Customer* customer);
+    //void addCustomer(const CustomerType type, const string& name, int distance, int maxOrders); 
     const vector<Order*>& myOrders(int customerId);
     
 
@@ -54,9 +58,9 @@ private:
     int orderCounter;
     Volunteer* findFreeVolunteer(const Order& order);
 
-    void switchOrdersVector(Order* p, std::vector<Order*>& source, std::vector<Order*>& destination);
+    void switchOrdersVector(Order* p, vector<Order*>& source, vector<Order*>& destination);
     void clearMemory();
-    string getInput();
+    void handleInputAction();
 };
 
 

@@ -2,8 +2,8 @@
 
 #include <string>
 #include <vector>
-using std::string;
-using std::vector;
+
+using namespace std;
 
 
 enum class OrderStatus {
@@ -19,6 +19,10 @@ class Order {
 
 public:
     Order(int id, int customerId, int distance);
+
+    Order* clone();
+        
+    static Order& getInvalidOrder();
     int getId() const;
     int getCustomerId() const;
     void setStatus(OrderStatus status);
@@ -30,6 +34,7 @@ public:
     const string toString() const;
     int getDistance() const;
     const string toStringByStats() const;
+    
 private:
     const int id;
     const int customerId;
