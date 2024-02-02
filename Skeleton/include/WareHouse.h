@@ -4,17 +4,20 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include<algorithm>
+
 #include "Order.h"
 #include "Customer.h"
 #include "Volunteer.h"
-#include "BaseAction.h"
+//#include "BaseAction.h"
+
+class BaseAction;
+//class Volunteer;
+
 
 using namespace std;
 
-
 // Warehouse responsible for Volunteers, Customers Actions, and Orders.
-
-
 
 class WareHouse {
 

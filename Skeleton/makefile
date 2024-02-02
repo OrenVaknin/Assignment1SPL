@@ -1,49 +1,20 @@
-# Makefile for C++ project in the Skeleton folder
-
-# Compiler and flags
-CXX = g++
-CXXFLAGS = -g -Wall -Weffc++
-
-# Directories
-SRC_DIR = src
-INCLUDE_DIR = include
-BIN_DIR = bin
-
-# Source files
-SRC_FILES = $(SRC_DIR)/main.cpp \
-            $(SRC_DIR)/Customer.cpp \
-            $(SRC_DIR)/WareHouse.cpp \
-			$(SRC_DIR)/BaseAction.cpp \
-            $(SRC_DIR)/Order.cpp \
-			$(SRC_DIR)/Volunteer.cpp \
-			$(SRC_DIR)/CollectorVolunteer.cpp \
-			$(SRC_DIR)/DriverVolunteer.cpp \
-			$(SRC_DIR)/LimitedCollectorVolunteer.cpp \
-			$(SRC_DIR)/LimitedDriverVolunteer.cpp \
-			
-HEADER_FILES = $(wildcard $(INCLUDE_DIR)/*.h)
-
-# Object files
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(BIN_DIR)/%.o,$(SRC_FILES))
-
-# Libraries
-LIBS = -lstdc++
-
-# Executable name
-EXECUTABLE = TEST
-
-# Targets
 all: clean compile link
 
-link: $(OBJ_FILES)
-	$(CXX) $(CXXFLAGS) -o $(BIN_DIR)/$(EXECUTABLE) $(OBJ_FILES) $(LIBS)
+compile:
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/BaseAction.o src/BaseAction.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/Customer.o src/Customer.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/Order.o src/Order.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/Volunteer.o src/Volunteer.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/WareHouse.o src/WareHouse.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/main.o src/main.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/DriverVolunteer.o src/DriverVolunteer.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/CollectorVolunteer.o src/CollectorVolunteer.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/LimitedDriverVolunteer.o src/LimitedDriverVolunteer.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/LimitedCollectorVolunteer.o src/LimitedCollectorVolunteer.cpp
 
-compile: $(OBJ_FILES)
-
-$(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADER_FILES)
-	$(CXX) $(CXXFLAGS) -c -o $@ $< -I$(INCLUDE_DIR)
+link:
+	g++ -g -Wall -Weffc++ -std=c++11 -o bin/warehouse bin/*.o
 
 clean:
-	rm -f $(BIN_DIR)/*
-
-.PHONY: all clean
+	rm -f bin/*.o
+	clear

@@ -1,4 +1,5 @@
 #include "BaseAction.h"
+
 extern WareHouse* backup;
 
 BaseAction::BaseAction() {}
@@ -72,10 +73,10 @@ void AddOrder::act(WareHouse& wareHouse)
 			wareHouse.addOrder(new Order(id, customerId, dis));
 		}
 		else
-			error("Cannot place this order”");
+			error("Cannot place this orderï¿½");
 	}
 	else
-		error("Customer doesn’t exist");
+		error("Customer doesnï¿½t exist");
 }
 
 string AddOrder::toString() const
@@ -134,7 +135,7 @@ PrintOrderStatus::PrintOrderStatus(int id) : orderId(id) {}
 void PrintOrderStatus::act(WareHouse& wareHouse)
 {
 	if (wareHouse.getOrderCounter() < orderId || orderId < 0)
-		error("Order doesn’t exist");
+		error("Order doesnï¿½t exist");
 	cout << wareHouse.getOrder(orderId).toString() << endl;
 }
 

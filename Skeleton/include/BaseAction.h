@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <iterator>
 #include "WareHouse.h"
+
 
 using namespace std;
 

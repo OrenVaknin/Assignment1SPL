@@ -1,4 +1,5 @@
 #include "WareHouse.h"
+#include "BaseAction.h" 
 
 
 WareHouse::WareHouse(const string& configFilePath) : actionsLog(), volunteers(), pendingOrders(),
@@ -255,8 +256,11 @@ void WareHouse::preformStep()
 
 		if (!v->hasOrdersLeft()) // 4
 		{
-			auto it = find(volunteers.begin(), volunteers.end(), v);
-			volunteers.erase(it);
+
+
+			auto it = std::find(volunteers.begin(), volunteers.end(), v);
+			if (it != volunteers.end())
+				volunteers.erase(it);
 			delete v;
 		}
 	}
