@@ -2,7 +2,7 @@
 #include "../include/BaseAction.h" 
 
 
-WareHouse::WareHouse(const string& configFilePath) : actionsLog(), volunteers(), pendingOrders(),
+WareHouse::WareHouse(const string& configFilePath) : isOpen(false) , actionsLog(), volunteers(), pendingOrders(),
 inProcessOrders(), completedOrders(), customers(), customerCounter(0), volunteerCounter(0), orderCounter(0)
 {
 	ifstream configFile(configFilePath);
@@ -78,14 +78,19 @@ inProcessOrders(), completedOrders(), customers(), customerCounter(0), volunteer
 }
 
 WareHouse::WareHouse(const WareHouse& other)
+: isOpen(other.isOpen),
+      actionsLog(),
+      volunteers(),
+      pendingOrders(),
+      inProcessOrders(),
+      completedOrders(),
+      customers(),
+      customerCounter(other.customerCounter),
+      volunteerCounter(other.volunteerCounter),
+      orderCounter(other.orderCounter)
 {
-	isOpen = other.isOpen;
-	customerCounter = other.customerCounter;
-	volunteerCounter = other.volunteerCounter;
-	orderCounter = other.orderCounter;
-
 	for (BaseAction* a : other.actionsLog)
-		addAction(a->clone());
+		this->actionsLog.push_back(a->clone());
 
 	for (Volunteer* v : other.volunteers)
 		this->volunteers.push_back(v->clone());
@@ -100,8 +105,81 @@ WareHouse::WareHouse(const WareHouse& other)
 		this->completedOrders.push_back(o->clone());
 
 	for (Customer* c : other.customers)
-		this->addCustomer(c->clone());
+		this->customers.push_back(c->clone());
 }
+
+
+WareHouse::WareHouse(WareHouse&& other)
+    : isOpen(other.isOpen),
+      actionsLog(std::move(other.actionsLog)),
+      volunteers(std::move(other.volunteers)),
+      pendingOrders(std::move(other.pendingOrders)),
+      inProcessOrders(std::move(other.inProcessOrders)),
+      completedOrders(std::move(other.completedOrders)),
+      customers(std::move(other.customers)),
+      customerCounter(other.customerCounter),
+      volunteerCounter(other.volunteerCounter),
+      orderCounter(other.orderCounter) 
+	  {
+		other.isOpen = false; 
+		other.customerCounter = 0;
+		other.volunteerCounter = 0;
+		other.orderCounter = 0;	
+	  }
+
+WareHouse& WareHouse::operator=(const WareHouse& other) {
+    if (this != &other) {
+        // 1. Copy scalar members
+        isOpen = other.isOpen;
+        customerCounter = other.customerCounter;
+        volunteerCounter = other.volunteerCounter;
+        orderCounter = other.orderCounter;
+
+        // 2. Deep copy vectors
+        // Assuming that Customer, Volunteer, Order, and BaseAction support proper deep copy.
+        actionsLog.clear();
+        actionsLog.reserve(other.actionsLog.size());
+        for (const auto& action : other.actionsLog) {
+            actionsLog.push_back(action->clone());  // Assuming clone() creates a deep copy
+        }
+
+        volunteers.clear();
+        volunteers.reserve(other.volunteers.size());
+        for (const auto& volunteer : other.volunteers) {
+            volunteers.push_back(volunteer->clone()); // Assuming Volunteer has a proper copy constructor
+        }
+
+        pendingOrders.clear();
+        pendingOrders.reserve(other.pendingOrders.size());
+        for (const auto& order : other.pendingOrders) {
+            pendingOrders.push_back(order->clone()); // Assuming Order has a proper copy constructor
+        }
+
+        inProcessOrders.clear();
+        inProcessOrders.reserve(other.inProcessOrders.size());
+        for (const auto& order : other.inProcessOrders) {
+            inProcessOrders.push_back(order->clone()); // Assuming Order has a proper copy constructor
+        }
+
+        completedOrders.clear();
+        completedOrders.reserve(other.completedOrders.size());
+        for (const auto& order : other.completedOrders) {
+            completedOrders.push_back(order->clone()); // Assuming Order has a proper copy constructor
+        }
+
+        customers.clear();
+        customers.reserve(other.customers.size());
+        for (const auto& customer : other.customers) {
+            customers.push_back(customer->clone()); // Assuming Customer has a proper copy constructor
+        }
+    }
+    return *this;
+}
+
+WareHouse::~WareHouse() {
+    clearMemory();
+}
+
 
 WareHouse* WareHouse::clone()
 {
@@ -184,8 +262,8 @@ Order& WareHouse::getOrder(int orderId) const {
 
 void WareHouse::close() {
 	isOpen = false;
+	
 	clearMemory();
-	delete this;
 }
 void WareHouse::open() {
 	isOpen = true;
@@ -261,7 +339,6 @@ void WareHouse::preformStep()
 			Order o = getOrder(v->getCompletedOrderId());
 			if (o.getStatus() == OrderStatus::COLLECTING){
 				switchOrdersVector(o.getId(), inProcessOrders, pendingOrders);
-				toProg = false;
 			}
 				
 			else if (o.getStatus() == OrderStatus::DELIVERING)
@@ -273,15 +350,19 @@ void WareHouse::preformStep()
 						op->setStatus(OrderStatus::COMPLETED);
 						break;
 					}	
-				toProg = false;
+				
 			}
 		}
 
-		if (!v->hasOrdersLeft()) // 4
+		if (!v->hasOrdersLeft() && !v->isBusy()) // 4
 		{
 			auto it = std::find(volunteers.begin(), volunteers.end(), v);
 			if (it != volunteers.end())
+			{
 				volunteers.erase(it);
+				toProg = false;
+			}
+				
 			delete v;
 		}
 
@@ -329,13 +410,6 @@ void WareHouse::addCustomer(Customer* customer)
 {
 	customers.push_back(customer);
 }
-
-//void WareHouse::addCustomer(const CustomerType type, const string& name, int distance, int maxOrders)
-//{
-//	if (type == CustomerType::Soldier)
-//		customers.push_back(new SoldierCustomer(nextCustomerId(), name, distance, maxOrders));
-//	customers.push_back(new CivilianCustomer(nextCustomerId(), name, distance, maxOrders));
-//}
 
 void WareHouse::myOrders(int customerId, vector<Order*>* my_orders) 
 {
@@ -393,21 +467,27 @@ void WareHouse::clearMemory()
 {
 	for (BaseAction* action : actionsLog) 
 		delete action;
+	actionsLog.clear();
 
 	for (Volunteer* volunteer : volunteers)
 		delete volunteer;
+	volunteers.clear();
 
 	for (Order* order : pendingOrders)
 		delete order;
-	
+	pendingOrders.clear();
+
 	for (Order* order : inProcessOrders)
 		delete order;
+	inProcessOrders.clear();
 
 	for (Order* order : completedOrders)
 		delete order;
+	completedOrders.clear();
 
 	for (Customer* customer : customers)
 		delete customer;
+	customers.clear();
 }
 
 void WareHouse::handleInputAction()
@@ -464,15 +544,15 @@ void WareHouse::handleInputAction()
 	else if (actionType == "backup")
 		action = new BackupWareHouse();
 
-	else if (actionType == "Restore")
+	else if (actionType == "restore")
 		action = new RestoreWareHouse();
 
 	else{
 		cout << "wtf bro?\n";
 		return;
 	}
-	addAction(action);
 	action->act(*this);
+	addAction(action);
 }
 
 void WareHouse::handleInputAction2()
@@ -553,15 +633,24 @@ void WareHouse::handleInputAction2()
 		else if (actionType == "backup")
 			action = new BackupWareHouse();
 
-		else if (actionType == "Restore")
+		else if (actionType == "restore")
 			action = new RestoreWareHouse();
 
 		else{
 			cout << "wtf bro?\n";
 			return;
 		}
-		addAction(action);
-		action->act(*this);
+		
+		if(actionType != "close")
+		{
+			action->act(*this);
+			addAction(action);
+		}
+		else
+		{
+			action->act(*this);
+			delete action;
+		}
 		cout << "\n";
 	}
 }

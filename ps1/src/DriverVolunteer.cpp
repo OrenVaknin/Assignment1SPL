@@ -2,7 +2,7 @@
 
 
 DriverVolunteer::DriverVolunteer(int id, const string& name, int maxDistance, int distancePerStep)
-	: Volunteer(id, name), maxDistance(maxDistance), distancePerStep(distancePerStep) {}
+	: Volunteer(id, name), maxDistance(maxDistance), distancePerStep(distancePerStep), distanceLeft() {}
 
 
 DriverVolunteer* DriverVolunteer::clone() const

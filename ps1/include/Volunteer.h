@@ -10,6 +10,7 @@ using namespace std;
 class Volunteer {
 public:
     Volunteer(int id, const string& name);
+    virtual ~Volunteer() = default;
     int getId() const;
     const string& getName() const;
     int getActiveOrderId() const;
@@ -95,6 +96,9 @@ private:
     const int distancePerStep; // The distance the volunteer does in one step
     int distanceLeft; // Distance left until the volunteer finishes his current order
 };
+
+
+
 
 class LimitedDriverVolunteer : public DriverVolunteer {
 

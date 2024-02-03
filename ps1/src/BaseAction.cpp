@@ -2,7 +2,7 @@
 
 extern WareHouse* backup;
 
-BaseAction::BaseAction() {}
+BaseAction::BaseAction() : errorMsg() , status(){}
 
 ActionStatus BaseAction::getStatus() const
 {
@@ -41,12 +41,13 @@ void SimulateStep::act(WareHouse& wareHouse)
 {
 	for (int i = 0; i < numOfSteps; i++)
 		wareHouse.preformStep();
+	complete();
 }
 
 string SimulateStep::toString() const
 {
 	// step 3
-	return "Step " + to_string(numOfSteps) + " " + BaseAction::toString()+"\n";
+	return "simulateStep " + to_string(numOfSteps) + " " + BaseAction::toString()+"\n";
 }
 
 SimulateStep* SimulateStep::clone() const
@@ -71,6 +72,7 @@ void AddOrder::act(WareHouse& wareHouse)
 			int dis = cus.getCustomerDistance();
 			cus.addOrder(id);
 			wareHouse.addOrder(new Order(id, customerId, dis));
+			complete();
 		}
 		else
 			error("Cannot place this order!\n");
@@ -111,6 +113,7 @@ void AddCustomer::act(WareHouse& wareHouse)
 	else
 		c = new CivilianCustomer(wareHouse.nextCustomerId(), customerName, distance, maxOrders);
 	wareHouse.addCustomer(c);
+	complete();
 }
 
 
@@ -124,7 +127,7 @@ string AddCustomer::toString() const
 	//  customer <customer_name> <customer_type> <customer_distance> <max_orders>
 	string s = "Customer " + customerName + " ";
 	s += (customerType == CustomerType::Soldier ? " Soldier " : " Civilian ");
-	s += distance + " " + maxOrders;
+	s += to_string(distance) + " " + to_string(maxOrders) + " ";
 	return s + BaseAction::toString() + "\n";
 }
 //-----------------------------------------------------------------
@@ -138,7 +141,10 @@ void PrintOrderStatus::act(WareHouse& wareHouse)
 	if (wareHouse.getOrderCounter() <= orderId || orderId < 0)
 		error("Order doesn't exist\n");
 	else
+	{
 		cout << wareHouse.getOrder(orderId).toString() << endl;
+		complete();
+	}
 }
 
 PrintOrderStatus* PrintOrderStatus::clone() const
@@ -149,7 +155,7 @@ PrintOrderStatus* PrintOrderStatus::clone() const
 string PrintOrderStatus::toString() const
 {
 	// orderStatus <order_id>
-	return "OrderStatus " + orderId + BaseAction::toString();
+	return "OrderStatus " + to_string(orderId)  + " " +  BaseAction::toString();
 }
 //-----------------------------------------------------------------
 
@@ -159,7 +165,7 @@ PrintCustomerStatus::PrintCustomerStatus(int customerId) : customerId(customerId
 
 void PrintCustomerStatus::act(WareHouse& wareHouse)
 {
-	if (customerId<0 || customerId>wareHouse.getCustomerCounter())
+	if (customerId<0 || customerId>=wareHouse.getCustomerCounter())
 		error("Customer doesn't exist\n");
 	else{
 		vector<Order*>* my_orders = new vector<Order*>();
@@ -172,6 +178,7 @@ void PrintCustomerStatus::act(WareHouse& wareHouse)
 			cout << "numOrdersLeft: " + to_string(wareHouse.getCustomer(customerId).getMaxOrders() - wareHouse.getCustomer(customerId).getNumOrders()) + "\n\n";
 		
 		delete my_orders;
+		complete();
 	}
 }
 
@@ -183,7 +190,7 @@ PrintCustomerStatus* PrintCustomerStatus::clone() const
 string PrintCustomerStatus::toString() const
 {
 	// customerStatus <customer_id>
-	return "CustomerStatus " + customerId + BaseAction::toString();
+	return "CustomerStatus " + to_string(customerId)  + " " +  BaseAction::toString();
 }
 
 //-----------------------------------------------------------------
@@ -194,7 +201,15 @@ PrintVolunteerStatus::PrintVolunteerStatus(int id) : volunteerId(id) {}
 
 void PrintVolunteerStatus::act(WareHouse& wareHouse)
 {
-	cout << wareHouse.getVolunteer(volunteerId).toString();
+	Volunteer* v = &(wareHouse.getVolunteer(volunteerId));
+	if (v->getId() != -1)
+	{
+		cout << v->toString();
+		complete();
+	}
+		
+	else
+		error("Volunteer doesn't exist!\n");
 }
 
 PrintVolunteerStatus* PrintVolunteerStatus::clone() const
@@ -205,7 +220,7 @@ PrintVolunteerStatus* PrintVolunteerStatus::clone() const
 string PrintVolunteerStatus::toString() const
 {
 	//  volunteerStatus <volunteer_id>
-	return "VolunteerStatus " + volunteerId + BaseAction::toString();
+	return "VolunteerStatus " + to_string(volunteerId)  + " " +  BaseAction::toString();
 }
 //-----------------------------------------------------------------
 
@@ -217,6 +232,7 @@ void PrintActionsLog::act(WareHouse& wareHouse)
 {
 	for (BaseAction* a : wareHouse.getActions())
 		cout << a->toString() + "\n";
+	complete();
 }
 
 PrintActionsLog* PrintActionsLog::clone() const
@@ -237,8 +253,9 @@ Close::Close() {}
 void Close::act(WareHouse& wareHouse)
 {
 	for (int i = 0; i < wareHouse.getOrderCounter(); i++)
-		cout << wareHouse.getOrder(i).toStringByStats();
+		cout << wareHouse.getOrder(i).toStringByStatsNID();
 	wareHouse.close();
+	complete();
 }
 
 Close* Close::clone() const
@@ -250,8 +267,7 @@ string Close::toString() const
 {
 	return "Close " + BaseAction::toString() + "\n";
 }
-//-----------------------------------------------------------------
-
+//------------------------------------------------------------------
 
 
 BackupWareHouse::BackupWareHouse() {}
@@ -259,8 +275,9 @@ BackupWareHouse::BackupWareHouse() {}
 void BackupWareHouse::act(WareHouse& wareHouse)
 {
 	if (backup != nullptr)
-		backup->close();
+		delete backup;
 	backup = wareHouse.clone();
+	complete();
 }
 
 BackupWareHouse* BackupWareHouse::clone() const
@@ -271,19 +288,20 @@ BackupWareHouse* BackupWareHouse::clone() const
 string BackupWareHouse::toString() const
 {
 	return "BackUp " + BaseAction::toString();
-}
+} 
 //-----------------------------------------------------------------
-
-
 
 RestoreWareHouse::RestoreWareHouse() {}
 
 void RestoreWareHouse::act(WareHouse& wareHouse)
 {
 	if (backup != nullptr) {
-		backup->clone();
-		//wareHouse.reconstruction();
+		wareHouse.close();
+		wareHouse = *backup->clone();
+		complete();
 	}
+	else
+		error("No backup available");
 }
 
 RestoreWareHouse* RestoreWareHouse::clone() const

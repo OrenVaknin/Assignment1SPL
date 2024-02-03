@@ -1,12 +1,14 @@
 #include "../include/Order.h"
+#include "Order.h"
 
 Order::Order(int id, int customerId, int distance) :
 	id(id), customerId(customerId), distance(distance), status(OrderStatus::PENDING),
 	collectorId(NO_VOLUNTEER), driverId(NO_VOLUNTEER) {}
 
+
 Order* Order::clone()
 {
-	return new Order(*this);
+    return new Order(*this);
 }
 
 int Order::getId() const {
@@ -83,6 +85,27 @@ const string Order::toStringByStats() const
 	}
 
 	return "OrderID: " + to_string(id) + "\nOrderStatus: " + s + "\n";
+}
+
+const string Order::toStringByStatsNID() const
+{
+	string s = "";
+	switch (status) {
+	case OrderStatus::PENDING:
+		s += "Pending";
+		break;
+	case OrderStatus::COLLECTING:
+		s += "Collecting";
+		break;
+	case OrderStatus::DELIVERING:
+		s += "Delivering";
+		break;
+	case OrderStatus::COMPLETED:
+		s += "Completed";
+		break;
+	}
+
+	return "OrderID: " + to_string(id) + ", CustomerID: " + to_string(customerId) + ", OrderStatus: " + s + "\n";
 }
 Order& Order::getInvalidOrder()
 {

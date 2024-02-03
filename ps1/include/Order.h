@@ -19,9 +19,7 @@ class Order {
 
 public:
     Order(int id, int customerId, int distance);
-
-    Order* clone();
-        
+    Order* clone();        
     static Order& getInvalidOrder();
     int getId() const;
     int getCustomerId() const;
@@ -34,6 +32,7 @@ public:
     const string toString() const;
     int getDistance() const;
     const string toStringByStats() const;
+    const string toStringByStatsNID() const;
     
 private:
     const int id;

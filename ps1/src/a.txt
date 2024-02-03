@@ -1,4 +1,3 @@
-
 order 0
 order 1
 order 0
@@ -11,24 +10,9 @@ volunteerStatus 0
 customerStatus 0
 customerStatus 1
 customerStatus 10
-step 1
-volunteerStatus 0
-volunteerStatus 1
-step 1
-volunteerStatus 0
-orderStatus 2
-orderStatus 0
-orderStatus 3
-log
-customer Dani soldier 7 3
-customerStatus 2
-order 2
-orderStatus 3
-step 1
-customerStatus 0
-customerStatus 1
-customerStatus 2
-volunteerStatus 1
-step 2
-volunteerStatus 1  //this was deleted because got max orders left
-orderStatus 2
+restore
+backup
+
+close
+
+

@@ -25,6 +25,9 @@ public:
     
     WareHouse(const string &configFilePath);
     WareHouse(const WareHouse& other);
+    WareHouse(WareHouse&& other);
+    WareHouse& operator=(const WareHouse& other);
+    ~WareHouse();
     WareHouse* clone();
     void start();
     void addOrder(Order* order);
@@ -48,8 +51,6 @@ public:
     //const vector<Order*>& myOrders(int customerId);
     void myOrders(int customerId, vector<Order*>*);
     
-
-
 private:
     bool isOpen;
     vector<BaseAction*> actionsLog;
@@ -62,12 +63,10 @@ private:
     int volunteerCounter; //For assigning unique volunteer IDs
     int orderCounter;
     Volunteer* findFreeVolunteer(const Order& order);
-
-    //void switchOrdersVector(Order* p, vector<Order*>& source, vector<Order*>& destination);
     void switchOrdersVector(int order_id, vector<Order*>& source, vector<Order*>& destination);
-    void clearMemory();
     void handleInputAction();
     void handleInputAction2();
+    void clearMemory();
 };
 
 
